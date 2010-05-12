@@ -1,6 +1,12 @@
 <?php
 
-	class ChaozzTable {
+	/**
+	 * 
+	 * 
+	 * @author ilmich
+	 * @package Chiavutu
+	 */
+	class ChiavutuTable {
 		
 		private $_delimiter="\t";
 		private $_tableName="";
@@ -11,6 +17,13 @@
 			return $dbDir.$tableName.$ext;
 		}
 		
+		/**
+		 * 
+		 * @param string $tableName
+		 * @param string $dbDir
+		 * @param string $delimiter
+		 * @param string $ext 
+		 */
 		public function __construct($tableName,$dbDir,$delimiter=null,$ext) {
 			
 			if (!is_null($delimiter)) {
@@ -22,16 +35,19 @@
 			
 			$this->_tableName = $tableName;
 			$this->_tablePath = $path;	
-			
-			
+						
 			//try to load fields
 			try {
 				$this->_loadFields();
-			}catch (ChaozzNgException $ex) {
+			}catch (ChiavutuException $ex) {
 				//do nothing
 			}			
 		}
 
+		/**
+		 * Delete record
+		 * @param string $find_condition
+		 */
 		public function deleteRecord($find_condition) {
 			
 			@unlink ($this->_tablePath."_");					// it might exist if a previous deletion failed
@@ -84,19 +100,26 @@
 			return TRUE;
 		}
 		
+		/**
+		 * Update record
+		 * @param array $value
+		 */
 		public function updateRecord($value) {
 			
 			$this->deleteRecord("id+=".$value[0]);
 			$this->addRecord($value);
 			
 		}		
-		
+		/**
+		 * Add record
+		 * @param array $value
+		 */
 		public function addRecord($value)  {
 
 			$db_handle = fopen ($this->_tablePath, "a+"); // cursor at the end of the file
 			
 			if (!$db_handle) { 
-				throw new ChaozzNgException("I/O error when accessing file $this->_tablePath",ChaozzNgException::IO_ERROR); 
+				throw new ChiavutuException("I/O error when accessing file $this->_tablePath",ChiavutuException::IO_ERROR); 
 			}
 			
 			$record = fgets($db_handle); // first line lists all table fields			
@@ -126,7 +149,7 @@
 			$db_handle = fopen ($this->_tablePath, "r+"); 
 			
 			if (!$db_handle) { 
-				throw new ChaozzNgException("I/O error when accessing file $this->_tablePath",ChaozzNgException::IO_ERROR); 
+				throw new ChiavutuException("I/O error when accessing file $this->_tablePath",ChiavutuException::IO_ERROR); 
 			}
 						
 			$record = trim(fgets($db_handle)); // first line lists all table fields
@@ -181,7 +204,7 @@
 			
 			if ($auto_join == 'true') {
 				
-				throw new ChaozzNgException("Auto join not yet implemented",ChaozzNgException::TABLE_ERROR);
+				throw new ChiavutuException("Auto join not yet implemented",ChiavutuException::TABLE_ERROR);
 				
 //				foreach ($field as $fieldkey => $_field) { 
 //					$_field = trim($_field);
@@ -231,19 +254,23 @@
 			return $search_result;
 		}
 		
+		/**
+		 * Create table
+		 * @param array $fields
+		 */
 		public function create($fields) {
 						
 			if (!is_array($fields)) {
-				throw new ChaozzNgException("List of fields must be an array",ChaozzNgException::TABLE_ERROR);
+				throw new ChiavutuException("List of fields must be an array",ChiavutuException::TABLE_ERROR);
 			}
 
 			if (file_exists($this->_tablePath)) {
-				throw new ChaozzNgException("File $this->_tablePath exists",ChaozzNgException::TABLE_ERROR);				
+				throw new ChiavutuException("File $this->_tablePath exists",ChiavutuException::TABLE_ERROR);				
 			}
 			
 			$db_handle = @fopen($this->_tablePath,"w+");			
 			if (!$db_handle) { 
-				throw new ChaozzNgException("I/O error when creating file $this->_tablePath",ChaozzNgException::IO_ERROR); 
+				throw new ChiavutuException("I/O error when creating file $this->_tablePath",ChiavutuException::IO_ERROR); 
 			}
 			
 			if (!array_search($fields,"id")) {
@@ -258,14 +285,18 @@
 			return $this;			
 		}
 		
+		/**
+		 * Drop table 
+		 * 
+		 */
 		public function drop() {
 			
 			if (!file_exists($this->_tablePath)) {
-				throw new ChaozzNgException("File $this->_tablePath not found. Nothing to drop",ChaozzNgException::IO_ERROR);				
+				throw new ChiavutuException("File $this->_tablePath not found. Nothing to drop",ChiavutuException::IO_ERROR);				
 			}
 			
 			if (!unlink($this->_tablePath)) {
-				throw new ChaozzNgException("Error when deleting $this->_tablePath",ChaozzNgException::IO_ERROR);
+				throw new ChiavutuException("Error when deleting $this->_tablePath",ChiavutuException::IO_ERROR);
 			}
 			
 			return true;
@@ -285,7 +316,7 @@
 			$db_handle = fopen ($this->_tablePath, "r");
 			
 			if (!$db_handle) { 
-				throw new ChaozzNgException("I/O error when accessing file $this->_tablePath",ChaozzNgException::IO_ERROR); 
+				throw new ChiavutuException("I/O error when accessing file $this->_tablePath",ChiavutuException::IO_ERROR); 
 			}
 			
 			$record = trim(fgets($db_handle)); // first line lists all table fields
